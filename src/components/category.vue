@@ -30,7 +30,6 @@
 
 <script>
   import axios from 'axios'
-  import router from '../router'
 
   export default {
     name: 'category',
@@ -91,7 +90,7 @@
               }, 1000)
 
               setTimeout(() => {
-                router.push('/category')
+                this.$router.push({ path: '/category' })
                 this.message = ''
               }, 3000)
               //router.push('/category')
