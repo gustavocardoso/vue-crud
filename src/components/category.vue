@@ -9,7 +9,7 @@
 
     <section class="list" v-if="show.list">
       <ul v-if="show.categories">
-        <li v-for="(category, index) in categories" v-bind:key="index">{{ category.name }}</li>
+        <li v-for="(category, index) in categories" v-bind:key="index"><router-link :to="`/category/edit/${category.id}`" class="dropdown-item">Home</router-link></li>
       </ul>
 
        <p v-else>No categories registered</p>
