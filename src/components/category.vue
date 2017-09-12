@@ -9,7 +9,7 @@
 
     <section class="list" v-if="show.list">
       <ul v-if="show.categories">
-        <li v-for="(category, index) in categories" v-bind:key="index"><router-link :to="`/category/edit/${category.id}`" class="dropdown-item">Home</router-link></li>
+        <li class="item" v-for="(category, index) in categories" v-bind:key="index" v-bind:class="isEven(index)"><router-link :to="`/category/edit/${category.id}`">{{ category.name }}</router-link></li>
       </ul>
 
        <p v-else>No categories registered</p>
@@ -116,6 +116,10 @@
       resetScreen() {
         this.show.list = false
         this.show.new = false
+      },
+
+      isEven(index) {
+        if ((index + 1) % 2 === 0) return 'even'
       }
     },
 
@@ -195,5 +199,32 @@
      text-transform: uppercase;
      color: #c03;
      margin: 2em 0 1em 0;
+   }
+
+   .list {
+     width: 60%;
+     margin: 0 auto;
+   }
+
+   .list .item {
+     font-size: 1em;
+     padding: .3em .5em;
+   }
+
+   .list .item.even {
+     background: #eee;
+   }
+
+   .list .item:hover {
+     background: #C6C5B9;
+   }
+
+   .list .item:hover a {
+     font-weight: 900;
+     color: #FDFDFF;
+   }
+
+   .list .item a {
+     text-decoration: none;
    }
 </style>
