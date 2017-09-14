@@ -15,12 +15,13 @@
        <p v-else>No categories registered</p>
     </section>
 
-    <section class="new" v-if="show.new">
+    <section class="new" v-if="show.newEdit">
       <h3 class="page-subtitle">Create new category</h3>
 
       <p class="message" v-if="message">{{ message }}</p>
       
-      <form id="new-category" v-if="!savingCategory" class="basic-form" v-on:submit.prevent="saveNewCategory">
+      <form id="new-category" class="basic-form" v-on:submit.prevent="saveCategory">
+        <input type="hidden" class="input-id" v-model="category.id" v-if="isEditing">
         <input type="text" class="input-name" placeholder="name" v-model="category.name">
         <input type="submit" class="input-save" value="save">
       </form>
@@ -44,14 +45,15 @@
           name: '',
         },
 
-        message: '',
+        isEditing: false,
+        isCreating: false,
 
-        savingCategory: false,
+        message: '',
         
         show: {
           list: false,
           categories: false,
-          new: false
+          newEdit: false
         },
 
         urlParams: {
@@ -72,17 +74,31 @@
           })
       },
 
+      getCategory(id) {
+        axios.get(`${this.apiUrl}/${id}`)
+          .then(response => {
+            if (response.data.error) {
+              this.message = response.data.error
+            } else {
+              this.category.id = response.data.id
+              this.category.name = response.data.name
+            }
+          })
+      },
+
       categoryRoute() {
         this.urlParams.id = this.$route.params.id,
         this.urlParams.action = this.$route.params.action || null
       },
 
-      saveNewCategory() {
+      saveCategory() {
         if (this.category.name !== '') {
+
           const formData = new FormData()
           formData.append("name", this.category.name)
-          
-          axios.post(this.apiUrl, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+
+          if (this.isCreating) {
+            axios.post(this.apiUrl, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
             .then(response => {
               setTimeout(() => {
                 this.category.name = ''
@@ -93,29 +109,47 @@
                 this.$router.push({ path: '/category' })
                 this.message = ''
               }, 3000)
-              //router.push('/category')
             })
+          }
+
+          if (this.isEditing) {
+            formData.append("id", this.category.id)
+
+            axios.put(this.apiUrl, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+            .then(response => {
+              setTimeout(() => {
+                this.message = 'Category successfully edited!'
+              }, 1000)
+            })
+          }
         }
       },
 
       setScreen() {
         this.resetScreen()
 
-        let currentScreen = this.urlParams.action
-
         if (!this.urlParams.id && !this.urlParams.action) {
           this.getCategories()
           this.show.list = true
         }
 
-        if (currentScreen === 'new') {
-          this.show.new = true
+        if (this.urlParams.action === 'new') {
+          this.show.newEdit = true
+          this.isCreating = true
+          this.category.name = ''
+          this.category.id = ''
+        }
+
+        if (this.urlParams.id && this.urlParams.action === 'edit') {
+          this.show.newEdit = true
+          this.isEditing = true
+          this.getCategory(this.urlParams.id)
         }
       },
 
       resetScreen() {
         this.show.list = false
-        this.show.new = false
+        this.show.newEdit = false
       },
 
       isEven(index) {
@@ -124,7 +158,6 @@
     },
 
     created() {
-      //this.categoryRoute()
       this.setScreen()
     },
 
