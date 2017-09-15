@@ -25,6 +25,8 @@
         <input type="text" class="input-name" placeholder="name" v-model="category.name">
         <input type="submit" class="input-save" value="save">
       </form>
+
+      <a href="#" class="del" v-if="isEditing" v-on:click.prevent="deleteCategory">delete this category</a>
     </section>
   </div>
 </template>
@@ -91,6 +93,23 @@
         this.urlParams.action = this.$route.params.action || null
       },
 
+      deleteCategory() {
+        if (window.confirm('Are you ure!?!')) {
+          axios.delete(this.apiUrl, { params: { id: this.category.id }})
+          .then(response => {
+            setTimeout(() => {
+              this.category.name = ''
+              this.message = 'Category successfully deleted!'
+            }, 1000)
+
+            setTimeout(() => {
+              this.$router.push({ path: '/category' })
+              this.message = ''
+            }, 3000)
+          })
+        }
+      },
+
       saveCategory() {
         if (this.category.name !== '') {
 
@@ -136,6 +155,7 @@
         if (this.urlParams.action === 'new') {
           this.show.newEdit = true
           this.isCreating = true
+          this.isEditing = false
           this.category.name = ''
           this.category.id = ''
         }
@@ -143,6 +163,7 @@
         if (this.urlParams.id && this.urlParams.action === 'edit') {
           this.show.newEdit = true
           this.isEditing = true
+          this.isCreating = false
           this.getCategory(this.urlParams.id)
         }
       },
@@ -259,5 +280,12 @@
 
    .list .item a {
      text-decoration: none;
+   }
+
+   .del {
+     display: inline-block;
+     text-decoration: none;
+     color: #c03;
+     margin: 1em auto 0 0;
    }
 </style>
